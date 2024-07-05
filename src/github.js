@@ -99,6 +99,7 @@ async function fetch_changed_files() {
 async function assign_reviewers(reviewers) {
   const context = get_context();
   const octokit = get_octokit();
+  const pull_request = get_pull_request();
 
   const [ teams_with_prefix, individuals ] = partition(reviewers, (reviewer) => reviewer.startsWith('team:'));
   const teams = teams_with_prefix.map((team_with_prefix) => team_with_prefix.replace('team:', ''));
@@ -107,7 +108,7 @@ async function assign_reviewers(reviewers) {
     owner: context.repo.owner,
     repo: context.repo.repo,
     pull_number: context.payload.pull_request.number,
-    reviewers: individuals,
+    reviewers: individuals.filter((user) => user != pull_request.author),
     team_reviewers: teams,
   });
 }
