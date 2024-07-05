@@ -105,7 +105,8 @@ async function assign_reviewers(reviewers) {
   const teams = teams_with_prefix.map((team_with_prefix) => team_with_prefix.replace('team:', ''));
 
   core.info(`Excluding PR author: ${pull_request.author}`);
-  const users = individuals.filter((user) => user != pull_request.author)
+
+  const users = individuals.filter((user) => user.toLowerCase() != pull_request.author.toLowerCase())
   core.info(`Requesting review from users: ${users.join(', ')}`);
 
   return octokit.pulls.requestReviewers({
