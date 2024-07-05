@@ -16004,15 +16004,19 @@ async function fetch_changed_files() {
 async function assign_reviewers(reviewers) {
   const context = get_context();
   const octokit = get_octokit();
+  const pull_request = get_pull_request();
 
   const [ teams_with_prefix, individuals ] = partition(reviewers, (reviewer) => reviewer.startsWith('team:'));
   const teams = teams_with_prefix.map((team_with_prefix) => team_with_prefix.replace('team:', ''));
+
+  const users = individuals.filter((user) => user != pull_request.author)
+  core.info(`Requesting review to ${users.join(', ')}`);
 
   return octokit.pulls.requestReviewers({
     owner: context.repo.owner,
     repo: context.repo.repo,
     pull_number: context.payload.pull_request.number,
-    reviewers: individuals,
+    reviewers: users,
     team_reviewers: teams,
   });
 }
@@ -16145,7 +16149,6 @@ async function run() {
   core.info('Randomly picking reviewers if the number of reviewers is set');
   reviewers = randomly_pick_reviewers({ reviewers, config });
 
-  core.info(`Requesting review to ${reviewers.join(', ')}`);
   await github.assign_reviewers(reviewers);
 }
 
