@@ -104,8 +104,9 @@ async function assign_reviewers(reviewers) {
   const [ teams_with_prefix, individuals ] = partition(reviewers, (reviewer) => reviewer.startsWith('team:'));
   const teams = teams_with_prefix.map((team_with_prefix) => team_with_prefix.replace('team:', ''));
 
+  core.info(`Excluding PR author: ${pull_request.author}`);
   const users = individuals.filter((user) => user != pull_request.author)
-  core.info(`Requesting review to ${users.join(', ')}`);
+  core.info(`Requesting review from users: ${users.join(', ')}`);
 
   return octokit.pulls.requestReviewers({
     owner: context.repo.owner,
